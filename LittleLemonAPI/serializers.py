@@ -5,35 +5,42 @@ from django.contrib.auth.models import User
 class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
-        fields = ['slug', 'title']
+        fields = ['id', 'slug', 'title']
 
 class MenuItemSerializer(serializers.ModelSerializer):
-    category = CategorySerializer()
+    category = CategorySerializer(read_only=True)  
+    category_id = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all(), source='category', write_only=True)
 
     class Meta:
         model = MenuItem
-        fields = ['title', 'price', 'featured', 'category']
+        fields = ['id', 'title', 'price', 'featured', 'category', 'category_id']
 
 class CartSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    menuitem = MenuItemSerializer()
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
+    menuitem = MenuItemSerializer(read_only=True) 
+    menuitem_id = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all(), source='menuitem', write_only=True)
 
     class Meta:
         model = Cart
-        fields = ['user', 'menuitem', 'quantity', 'unit_price', 'price']
+        fields = ['user', 'user_id', 'menuitem', 'menuitem_id', 'quantity', 'unit_price', 'price']
 
 class OrderSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
-    delivery_crew = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    user = serializers.PrimaryKeyRelatedField(read_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
+    delivery_crew = serializers.PrimaryKeyRelatedField(read_only=True)
+    delivery_crew_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='delivery_crew', required=False, write_only=True)
 
     class Meta:
         model = Order
-        fields = ['user', 'delivery_crew', 'status', 'date', 'total']
+        fields = ['user', 'user_id', 'delivery_crew', 'delivery_crew_id', 'status', 'date', 'total']
 
 class OrderItemSerializer(serializers.ModelSerializer):
-    order = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all())
-    menuitem = MenuItemSerializer()
+    order = serializers.PrimaryKeyRelatedField(read_only=True)
+    order_id = serializers.PrimaryKeyRelatedField(queryset=Order.objects.all(), source='order', write_only=True)
+    menuitem = MenuItemSerializer(read_only=True)
+    menuitem_id = serializers.PrimaryKeyRelatedField(queryset=MenuItem.objects.all(), source='menuitem', write_only=True)
 
     class Meta:
         model = OrderItem
-        fields = ['order', 'menuitem', 'quantity', 'unit_price', 'price']
+        fields = ['order', 'order_id', 'menuitem', 'menuitem_id', 'quantity', 'unit_price', 'price']
