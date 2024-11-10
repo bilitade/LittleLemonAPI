@@ -155,7 +155,7 @@ class CartView(generics.ListCreateAPIView):
 class ManagerUserView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request):
         """Returns all users in the 'Manager' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
@@ -164,7 +164,7 @@ class ManagerUserView(APIView):
         users_data = [{"id": user.id, "username": user.username} for user in managers]
         return Response(users_data)
 
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         """Assign a user to the 'Manager' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
@@ -180,14 +180,17 @@ class ManagerUserView(APIView):
         except Group.DoesNotExist:
             return Response({'detail': 'Manager group not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, *args, **kwargs):
+
+class ManagerUserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, userId):
         """Remove a user from the 'Manager' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
         
-        user_id = kwargs.get('userId')
         try:
-            user = User.objects.get(id=user_id)
+            user = User.objects.get(id=userId)
             manager_group = Group.objects.get(name="Manager")
             user.groups.remove(manager_group)
             return Response({'detail': 'User removed from Manager group'}, status=status.HTTP_200_OK)
@@ -196,50 +199,56 @@ class ManagerUserView(APIView):
         except Group.DoesNotExist:
             return Response({'detail': 'Manager group not found'}, status=status.HTTP_404_NOT_FOUND)
 
+
 class DeliveryCrewUserView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, *args, **kwargs):
-        """Returns all users in the 'Delivery Crew' group."""
+    def get(self, request):
+        """Returns all users in the 'Delivery crew' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
-        
-        delivery_crew = User.objects.filter(groups__name="Delivery Crew")
+
+        # Debug: Print the list of users in the "Delivery crew" group
+        delivery_crew = User.objects.filter(groups__name="Delivery crew")
+        print("Delivery crew Users:", delivery_crew)  # This will print the QuerySet to the console
         users_data = [{"id": user.id, "username": user.username} for user in delivery_crew]
         return Response(users_data)
 
-    def post(self, request, *args, **kwargs):
-        """Assign a user to the 'Delivery Crew' group."""
+
+    def post(self, request):
+        """Assign a user to the 'Delivery crew' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
         
         user_id = request.data.get('user_id')
         try:
             user = User.objects.get(id=user_id)
-            delivery_crew_group = Group.objects.get(name="Delivery Crew")
+            delivery_crew_group = Group.objects.get(name="Delivery crew")
             user.groups.add(delivery_crew_group)
-            return Response({'detail': 'User added to Delivery Crew group'}, status=status.HTTP_201_CREATED)
+            return Response({'detail': 'User added to Delivery crew group'}, status=status.HTTP_201_CREATED)
         except User.DoesNotExist:
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Group.DoesNotExist:
-            return Response({'detail': 'Delivery Crew group not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'detail': 'Delivery crew group not found'}, status=status.HTTP_404_NOT_FOUND)
 
-    def delete(self, request, *args, **kwargs):
-        """Remove a user from the 'Delivery Crew' group."""
+
+class DeliveryCrewUserDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, userId):
+        """Remove a user from the 'Delivery crew' group."""
         if not request.user.groups.filter(name="Manager").exists():
             return Response({'detail': 'Forbidden'}, status=status.HTTP_403_FORBIDDEN)
         
-        user_id = kwargs.get('userId')
         try:
-            user = User.objects.get(id=user_id)
-            delivery_crew_group = Group.objects.get(name="Delivery Crew")
+            user = User.objects.get(id=userId)
+            delivery_crew_group = Group.objects.get(name="Delivery crew")
             user.groups.remove(delivery_crew_group)
-            return Response({'detail': 'User removed from Delivery Crew group'}, status=status.HTTP_200_OK)
+            return Response({'detail': 'User removed from Delivery crew group'}, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({'detail': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
         except Group.DoesNotExist:
-            return Response({'detail': 'Delivery Crew group not found'}, status=status.HTTP_404_NOT_FOUND)
-
+            return Response({'detail': 'Delivery crew group not found'}, status=status.HTTP_404_NOT_FOUND)
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
