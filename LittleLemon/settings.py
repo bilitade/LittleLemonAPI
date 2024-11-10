@@ -142,6 +142,15 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer',
     ),
+
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle', 
+        'rest_framework.throttling.UserRateThrottle', 
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '10/day',  # Allow 10 requests per day for anonymous users
+        'user': '100/day',  # Allow 100 requests per day for authenticated users
+    },
 }
 
 

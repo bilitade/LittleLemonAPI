@@ -9,15 +9,24 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-
+from rest_framework.throttling import AnonRateThrottle, UserRateThrottle
 
 class CategoryView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+    def get_permissions(self):
+        """
+        Allow GET requests without authentication (anonymous access).
+        For POST, PUT, DELETE methods, authentication is required.
+        """
+        if self.request.method == 'GET':
+            return []  # No permissions needed for GET (anonymous access)
+        return [IsAuthenticated()]  # Apply IsAuthenticated for other methods
+
 
 class MenuItemView(generics.ListCreateAPIView):
-    permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
@@ -27,6 +36,16 @@ class MenuItemView(generics.ListCreateAPIView):
     }
     search_fields = ['title']
     ordering_fields = ['price', 'featured']
+
+    def get_permissions(self):
+        """
+        Allow GET requests without authentication (anonymous access).
+        For POST, PUT, DELETE methods, authentication is required.
+        """
+        if self.request.method == 'GET':
+            return []  # No permissions needed for GET (anonymous access)
+        return [IsAuthenticated()]  # Apply IsAuthenticated for other methods
+
 
     def post(self, request, *args, **kwargs):
         # Ensure only managers can create menu items
@@ -57,6 +76,7 @@ class OrderView(generics.ListCreateAPIView):
     filterset_fields = ['status'] 
     search_fields = ['id', 'user__username'] 
     ordering_fields = ['date', 'total'] 
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
 
  
     def get_queryset(self):
@@ -91,13 +111,16 @@ class OrderDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+ 
 
 
 class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [IsAuthenticated]
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def post(self, request, *args, **kwargs):
         # Ensure only managers can create menu items
@@ -126,6 +149,8 @@ class MenuDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CartView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     serializer_class = CartSerializer
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def get_queryset(self):
         """Get all cart items for the authenticated user."""
@@ -167,6 +192,8 @@ class CartView(generics.ListCreateAPIView):
  #APIView is used  beacuse its simple to do customization than genericView
 class ManagerUserView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def get(self, request):
         """Returns all users in the 'Manager' group."""
@@ -196,6 +223,8 @@ class ManagerUserView(APIView):
 
 class ManagerUserDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def delete(self, request, userId):
         """Remove a user from the 'Manager' group."""
@@ -215,6 +244,8 @@ class ManagerUserDetailView(APIView):
 
 class DeliveryCrewUserView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def get(self, request):
         """Returns all users in the 'Delivery crew' group."""
@@ -247,6 +278,8 @@ class DeliveryCrewUserView(APIView):
 
 class DeliveryCrewUserDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def delete(self, request, userId):
         """Remove a user from the 'Delivery crew' group."""
@@ -265,6 +298,8 @@ class DeliveryCrewUserDetailView(APIView):
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [AnonRateThrottle, UserRateThrottle]
+
 
     def post(self, request, *args, **kwargs):
         try:
