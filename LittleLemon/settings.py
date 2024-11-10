@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'LittleLemonAPI',
     'rest_framework',
     'rest_framework.authtoken',
-    'djoser'
+    'djoser',
+    'django_filters'
 ]
 
 MIDDLEWARE = [
@@ -128,6 +129,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 REST_FRAMEWORK = {
+
+     'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+    ],
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',

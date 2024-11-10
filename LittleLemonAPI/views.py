@@ -1,6 +1,6 @@
 
 from django.shortcuts import render
-from rest_framework import generics, status
+from rest_framework import generics, status,filters
 from rest_framework.response import Response
 from .models import Category, Order, MenuItem, OrderItem, Cart
 from .serializers import MenuItemSerializer, CategorySerializer, OrderSerializer, CartSerializer
@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from rest_framework.views import APIView
+from django_filters.rest_framework import DjangoFilterBackend
 
 
 class CategoryView(generics.ListCreateAPIView):
@@ -19,6 +20,13 @@ class MenuItemView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
     queryset = MenuItem.objects.all()
     serializer_class = MenuItemSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
+    filterset_fields = {
+        'category': ['exact'],
+        'price': ['exact', 'gt', 'lt'],  
+    }
+    search_fields = ['title']
+    ordering_fields = ['price', 'featured']
 
     def post(self, request, *args, **kwargs):
         # Ensure only managers can create menu items
@@ -45,7 +53,12 @@ class MenuItemView(generics.ListCreateAPIView):
 class OrderView(generics.ListCreateAPIView):
     serializer_class = OrderSerializer
     queryset = Order.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter,filters.OrderingFilter]
+    filterset_fields = ['status'] 
+    search_fields = ['id', 'user__username'] 
+    ordering_fields = ['date', 'total'] 
 
+ 
     def get_queryset(self):
         """Filter orders based on the authenticated user."""
         return Order.objects.filter(user=self.request.user)
