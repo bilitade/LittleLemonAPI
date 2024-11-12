@@ -34,7 +34,7 @@ Welcome to the Little Lemon API! This is a hands-on project I completed as part 
 
 4. **Navigate to Project Directory**  
    ```bash
-   cd littleLemon
+   cd littleLemonAPI
    ```
 
 ### Set Up Virtual Environment
@@ -81,7 +81,7 @@ Welcome to the Little Lemon API! This is a hands-on project I completed as part 
 
 ### View Project
 
-Open a browser and navigate to [http://127.0.0.1:8000](http://127.0.0.1:8000) to view the project.
+Open a browser and navigate to [http://127.0.0.1:8000/api/menu-items](http://127.0.0.1:8000/api/menu-items) to view the project.
 
 For easy API testing, import the provided Insomnia file (`Insomnia_2024-11-11.json`) into **Insomnia** or **Postman**.
 
